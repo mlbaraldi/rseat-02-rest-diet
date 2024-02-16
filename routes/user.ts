@@ -17,6 +17,7 @@ export async function userRoutes(app: FastifyInstance) {
       path: '/',
       maxAge: 60 * 60 * 24, // 1 day
     })
+
     await knex('users').insert({
       id: userId,
       name,

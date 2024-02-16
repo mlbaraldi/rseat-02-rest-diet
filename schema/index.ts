@@ -7,8 +7,19 @@ const createMealsBodySchema = z.object({
   isDiet: z.boolean(),
 })
 
+const patchMealsBodySchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  datetime: z.string().optional(),
+  isDiet: z.boolean().optional(),
+})
+
 const createUserSchema = z.object({
   name: z.string(),
+})
+
+const getMealSchema = z.object({
+  id: z.string().uuid(),
 })
 
 const envSchema = z.object({
@@ -18,4 +29,10 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['test', 'prod', 'dev']).default('prod'),
 })
 
-export { createUserSchema, createMealsBodySchema, envSchema }
+export {
+  createUserSchema,
+  createMealsBodySchema,
+  envSchema,
+  getMealSchema,
+  patchMealsBodySchema,
+}

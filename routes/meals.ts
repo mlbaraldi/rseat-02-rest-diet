@@ -1,13 +1,19 @@
 import { FastifyInstance } from 'fastify'
 import { checkUserId } from '../middlewares/check-user-id'
-import { createMealsBodySchema } from '../schema'
+import {
+  createMealsBodySchema,
+  getMealSchema,
+  patchMealsBodySchema,
+} from '../schema'
 import { knex } from '../db/database'
 import { randomUUID } from 'crypto'
+import { FastifyReply } from 'fastify/types/reply'
+import { FastifyRequest } from 'fastify/types/request'
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', (req, res) => checkUserId(req, res))
 
-  app.post('/meals', async (req) => {
+  app.post('/meals', async (req: FastifyRequest) => {
     const userId = req.cookies.userId
 
     const { name, description, datetime, isDiet } = createMealsBodySchema.parse(
@@ -24,12 +30,23 @@ export async function mealsRoutes(app: FastifyInstance) {
     })
   })
 
-  app.get('/meals', async (req, res) => {
-    const userId = req.cookies.userId
-    console.log(userId)
+  app.patch('/meals/:id', async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+      const userId = req.cookies.userId
+      const { id } = getMealSchema.parse(req.params)
 
-    const response = await knex('meals').where('userId', userId)
+      const { name, description, datetime, isDiet } =
+        patchMealsBodySchema.parse(req.body)
 
-    res.status(200).send(response)
+      await knex('meals')
+        .where('id', id)
+        .where('userId', userId)
+        .update({ name, description, datetime, isDiet })
+
+      res.status(200).send('Meal updated')
+    } catch (error) {
+      console.error('Error updating meal:', error)
+      res.status(500).send('Internal Server Error')
+    }
   })
 }
