@@ -13,21 +13,27 @@ import { FastifyRequest } from 'fastify/types/request'
 export async function mealsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', (req, res) => checkUserId(req, res))
 
-  app.post('/meals', async (req: FastifyRequest) => {
+  app.post('/meals', async (req: FastifyRequest, res: FastifyReply) => {
     const userId = req.cookies.userId
 
     const { name, description, datetime, isDiet } = createMealsBodySchema.parse(
       req.body,
     )
 
-    await knex('meals').insert({
+    const newMeal = {
       id: randomUUID(),
       name,
       description,
       datetime,
       isDiet,
       userId,
-    })
+    }
+
+    await knex('meals').insert(newMeal)
+
+    console.log(`New meal created: ${JSON.stringify(newMeal)}`)
+
+    res.status(200).send(newMeal)
   })
 
   app.patch('/meals/:id', async (req: FastifyRequest, res: FastifyReply) => {

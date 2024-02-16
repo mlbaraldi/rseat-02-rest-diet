@@ -24,7 +24,9 @@ export async function userRoutes(app: FastifyInstance) {
       name,
     })
 
-    res.status(201).send(`User ID: ${userId} created successfully`)
+    console.log(`User ${userId} created`)
+
+    res.status(201).send({ user: userId, message: 'User created' })
   })
 
   app.get('/user', { preHandler: checkUserId }, async (req, res) => {
