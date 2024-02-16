@@ -1,15 +1,11 @@
 import { randomUUID } from 'node:crypto'
 import { FastifyInstance } from 'fastify'
 import { knex } from '../db/database'
-import z from 'zod'
+import { createUserSchema } from '../schema'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('/user', async (req, res) => {
-    const createUserSchema = z.object({
-      name: z.string(),
-    })
     const { name } = createUserSchema.parse(req.body)
-
     let userId = req.cookies.userId
 
     if (userId) {
