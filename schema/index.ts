@@ -11,4 +11,11 @@ const createUserSchema = z.object({
   name: z.string(),
 })
 
-export { createUserSchema, createMealsBodySchema }
+const envSchema = z.object({
+  DB_CLIENT: z.string(),
+  DB_URL: z.string(),
+  PORT: z.coerce.number(),
+  NODE_ENV: z.enum(['test', 'prod', 'dev']).default('prod'),
+})
+
+export { createUserSchema, createMealsBodySchema, envSchema }
