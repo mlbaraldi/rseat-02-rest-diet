@@ -49,4 +49,45 @@ export async function mealsRoutes(app: FastifyInstance) {
       res.status(500).send('Internal Server Error')
     }
   })
+
+  app.get('/meals/:id', async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+      const userId = req.cookies.userId
+      const { id } = getMealSchema.parse(req.params)
+
+      const meal = await knex('meals').where('id', id).where('userId', userId)
+
+      res.status(200).send(meal)
+    } catch (error) {
+      console.error('Error getting meal:', error)
+      res.status(500).send('Internal Server Error')
+    }
+  })
+
+  app.delete('/meals/:id', async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+      const userId = req.cookies.userId
+      const { id } = getMealSchema.parse(req.params)
+
+      await knex('meals').where('id', id).where('userId', userId).delete()
+
+      res.status(200).send('Meal deleted')
+    } catch (error) {
+      console.error('Error getting meal:', error)
+      res.status(500).send('Internal Server Error')
+    }
+  })
+
+  app.get('/meals', async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+      const userId = req.cookies.userId
+
+      const meals = await knex('meals').where('userId', userId)
+
+      res.status(200).send(meals)
+    } catch (error) {
+      console.error('Error getting meal:', error)
+      res.status(500).send('Internal Server Error')
+    }
+  })
 }
