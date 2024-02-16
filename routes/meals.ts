@@ -1,18 +1,35 @@
 import { FastifyInstance } from 'fastify'
-import { z } from 'zod'
+import { checkUserId } from '../middlewares/check-user-id'
+import { createMealsBodySchema } from '../schema'
+import { knex } from '../db/database'
+import { randomUUID } from 'crypto'
 
 export async function mealsRoutes(app: FastifyInstance) {
-  app.get('/meals', () => {
-    console.log('entrou em meals')
+  app.addHook('preHandler', (req, res) => checkUserId(req, res))
+
+  app.post('/meals', async (req) => {
+    const userId = req.cookies.userId
+
+    const { name, description, datetime, isDiet } = createMealsBodySchema.parse(
+      req.body,
+    )
+
+    await knex('meals').insert({
+      id: randomUUID(),
+      name,
+      description,
+      datetime,
+      isDiet,
+      userId,
+    })
   })
 
-  app.post('/meals', () => {
-    const createMealsBodySchema = z.object({
-      id: z.string().uuid(),
-      Name: z.string(),
-      description: z.string(),
-      Datetime: z.date(),
-      isDiet: z.boolean(),
-    })
+  app.get('/meals', async (req, res) => {
+    const userId = req.cookies.userId
+    console.log(userId)
+
+    const response = await knex('meals').where('userId', userId)
+
+    res.status(200).send(response)
   })
 }
