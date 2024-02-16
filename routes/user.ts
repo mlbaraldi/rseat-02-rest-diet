@@ -24,7 +24,6 @@ export async function userRoutes(app: FastifyInstance) {
     await knex('users').insert({
       id: userId,
       name,
-      created_at: new Date(),
     })
 
     res.status(201).send(`User ID: ${userId} created successfully`)
